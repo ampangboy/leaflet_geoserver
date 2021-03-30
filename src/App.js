@@ -1,13 +1,32 @@
 import './App.css';
-import { MapContainer, TileLayer } from 'react-leaflet'
+import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import Square from './customComponent'
+import { useState } from 'react';
 
 function App() {
+  const [size, setSize] = useState(1000)
+  const [buttonColor, setButtonColor] = useState('blue')
+  const center = [51.505, -0.09]
+
+  const onClickEnlarge = () => {
+    setSize(size + 50)
+  }
+
+  const onClickChangeColor = () => {
+    setButtonColor("red")
+  }
+
   return (
-    <MapContainer center={[50, 50]} zoom={4}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <TileLayer url="http://localhost:8080/geoserver/gwc/service/wmts?layer=nurc:Img_Sample&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}" />
-    </MapContainer>
+    <>
+      <button style={{ backgroundColor: buttonColor }} onClick={onClickChangeColor}>Change Colour</button>
+      <button onClick={onClickEnlarge}>Enlarge</button>
+      <MapContainer center={center} zoom={13}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <Square center={center} size={size} />
+      </MapContainer>
+    </>
+
   );
 }
 
