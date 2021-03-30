@@ -9,8 +9,6 @@ function App() {
   const [buttonColor, setButtonColor] = useState('blue')
   const center = [51.505, -0.09]
 
-  // enlarge button here will not work. Because the Square component is not being track
-  // by react in the Virtual DOM
   const onClickEnlarge = () => {
     setSize(size + 50)
   }
