@@ -1,4 +1,4 @@
-import { createElementHook, createPathHook, useLayerLifecycle, useLeafletContext } from '@react-leaflet/core'
+import { createElementHook, createLeafComponent, createPathHook, useLayerLifecycle, useLeafletContext } from '@react-leaflet/core'
 import * as L from 'leaflet'
 
 
@@ -22,11 +22,7 @@ function updateSquare(instance, props, prevProps) {
 // of code.
 const useSquareElement = createElementHook(createSquare, updateSquare)
 const useSquare = createPathHook(useSquareElement)
-
-function Square(props) {
-    useSquare(props)
-    return null
-}
+const Square = createLeafComponent(useSquare)
 
 
 export default Square
