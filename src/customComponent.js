@@ -1,5 +1,4 @@
-import { useEffect, useRef } from "react"
-import { useLeafletContext } from '@react-leaflet/core'
+import { createElementHook, useLayerLifecycle, useLeafletContext } from '@react-leaflet/core'
 import * as L from 'leaflet'
 
 
@@ -7,41 +6,29 @@ function getBounds(props) {
     return L.latLng(props.center).toBounds(props.size)
 }
 
+function createSquare(props, context) {
+    return { instance: new L.Rectangle(getBounds(props)), context }
+}
+
+function updateSquare(instance, props, prevProps) {
+    if (props.center !== prevProps.center || props.size !== prevProps.size) {
+        instance.setBounds(getBounds(props))
+    }
+}
+
+// createElementHook require two function as arguement, createSquare and updateSquare.
+// This hook can be place inside the Square component. However, its taken out out of 
+// purpose of code readability. Its abstracting away react hook which require less line
+// of code.
+const useSquareElement = createElementHook(createSquare, updateSquare)
+
 function Square(props) {
     const context = useLeafletContext()
-    // use ref here causing the square element DOM is taken out from the Virtual DOM. Hence,
-    // any manipulation to the react component is not re-render here. 
-    const squareRef = useRef()
+    const elementRef = useSquareElement(props, context)
 
-    // this propsRef is created for the purpose of tracking the changes in the props. If the
-    // props did changed, then useEffect will update the squareRef which have been taken out
-    // of Virtual DOM.
-    const propsRef = useRef(props)
-
-    useEffect(() => {
-        squareRef.current = new L.Rectangle(getBounds(props))
-        const container = context.layerContainer || context.map
-        container.addLayer(squareRef.current)
-
-        return () => {
-            container.removeLayer(squareRef.current)
-        }
-    }, [])
-
-    useEffect(() => {
-        if (
-            props.center !== propsRef.current.center ||
-            props.size !== propsRef.current.size
-        ) {
-            // Note that this is not happening within the Virtual DOM
-            squareRef.current.setBounds(getBounds(props))
-        }
-
-        // after the changes to props is assigned to the squareRef, we need to asigned to the
-        // current props ref, so that if the new props is received, then the props can be 
-        // compare again
-        propsRef.current = props
-    }, [props.center, props.size])
+    // useLayerLifecycle hook completly remove the need to use react hook. It support adding
+    // remove layer from parent container or the map
+    useLayerLifecycle(elementRef.current, context)
 
     return null
 }
