@@ -1,4 +1,4 @@
-import { createElementHook, useLayerLifecycle, useLeafletContext } from '@react-leaflet/core'
+import { createElementHook, createPathHook, useLayerLifecycle, useLeafletContext } from '@react-leaflet/core'
 import * as L from 'leaflet'
 
 
@@ -21,15 +21,10 @@ function updateSquare(instance, props, prevProps) {
 // purpose of code readability. Its abstracting away react hook which require less line
 // of code.
 const useSquareElement = createElementHook(createSquare, updateSquare)
+const useSquare = createPathHook(useSquareElement)
 
 function Square(props) {
-    const context = useLeafletContext()
-    const elementRef = useSquareElement(props, context)
-
-    // useLayerLifecycle hook completly remove the need to use react hook. It support adding
-    // remove layer from parent container or the map
-    useLayerLifecycle(elementRef.current, context)
-
+    useSquare(props)
     return null
 }
 
